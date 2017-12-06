@@ -1,9 +1,5 @@
-# xcore cryptography library
+# xcore encryption, decryption library
 
-A library with cryptographic engines:
-- skein 256/512/1024
-- blake 256/512/1024
-- sha3
-- sha1
+A library with currently only one Cipher (encryption/decryption)
+* AES 256
 
-Cipher (encryption/decryption)
