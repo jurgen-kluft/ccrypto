@@ -20,15 +20,15 @@ namespace xcore
 	public:
 		virtual void		reset() = 0;
 
-		virtual void		initialize(xreader* key, u32 key_len) = 0;
+		virtual void		initialize(reader_t* key, u32 key_len) = 0;
 
-		virtual void		encrypt_begin(u32 total_src_len, xwriter* dst) = 0;
-		virtual void		encrypt_block(xreader* src, u32 src_len, xwriter* dst) = 0;
-		virtual void		encrypt_final(xwriter* dst) = 0;
+		virtual void		encrypt_begin(u32 total_src_len, writer_t* dst) = 0;
+		virtual void		encrypt_block(reader_t* src, u32 src_len, writer_t* dst) = 0;
+		virtual void		encrypt_final(writer_t* dst) = 0;
 
 		virtual void		decrypt_begin(u32 total_src_len) = 0;
-		virtual void		decrypt_block(xreader* src, u32 src_len, xwriter* dst) = 0;
-		virtual void		decrypt_final(xwriter* dst) = 0;
+		virtual void		decrypt_block(reader_t* src, u32 src_len, writer_t* dst) = 0;
+		virtual void		decrypt_final(writer_t* dst) = 0;
 	};
 }
 

@@ -95,7 +95,7 @@ UNITTEST_SUITE_BEGIN(xskein)
 		UNITTEST_TEST(test1)
 		{
 			u8 message[] = { 0xFF };
-			xskein256 hash = x_skein256Hash256(message, 1);
+			skein256_t hash = x_skein256Hash256(message, 1);
 
 			u8 vhash[] =
 			{
@@ -110,7 +110,7 @@ UNITTEST_SUITE_BEGIN(xskein)
 		UNITTEST_TEST(test2)
 		{
 			u8 message[] = { 0xFB,0xD1,0x7C,0x26 };
-			xskein256 hash = x_skein256Hash256(message, 4);
+			skein256_t hash = x_skein256Hash256(message, 4);
 
 			u8 vhash[] =
 			{

@@ -6,7 +6,7 @@
 
 using namespace xcore;
 
-UNITTEST_SUITE_BEGIN(xsha1)
+UNITTEST_SUITE_BEGIN(sha1_t)
 {
 	UNITTEST_FIXTURE(type)
 	{
@@ -23,7 +23,7 @@ UNITTEST_SUITE_BEGIN(xsha1)
 		{
 			xdigest_engine_sha1 g;
 			g.reset();
-			xsha1 h;
+			sha1_t h;
 			CHECK_TRUE(g.digest(h));
 
 			char sha1Str[128];
@@ -44,7 +44,7 @@ UNITTEST_SUITE_BEGIN(xsha1)
 			u32 data_len = StrLen(data);
 			g.update(data, data_len);
 
-			xsha1 h;
+			sha1_t h;
 			CHECK_TRUE(g.digest(h));
 
 			char sha1Str[128];
@@ -66,7 +66,7 @@ UNITTEST_SUITE_BEGIN(xsha1)
 			u32 data_len = StrLen(data);
 			g.update(data, data_len);
 
-			xsha1 h;
+			sha1_t h;
 			CHECK_TRUE(g.digest(h));
 
 			char sha1Str[128];

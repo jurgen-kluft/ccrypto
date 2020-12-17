@@ -35,7 +35,7 @@ namespace xcore
 					m_key[i] = (rand() & 0xFF);
 			}
 
-			void		read(xreader* src, u32 key_len)
+			void		read(reader_t* src, u32 key_len)
 			{
 				clear(0);
 				u32 n = size();
@@ -44,7 +44,7 @@ namespace xcore
 				src->read(m_key, n);
 			}
 
-			void		write(xwriter* dst)
+			void		write(writer_t* dst)
 			{
 				dst->write(m_key, size());
 			}
@@ -64,16 +64,16 @@ namespace xcore
 
 			void			clear();
 
-			void			set_key(xreader* key, u32 key_len);
+			void			set_key(reader_t* key, u32 key_len);
 
-			void			encrypt_start(u32 plain_length, xwriter* encrypted);
-			void			encrypt_data(xreader* reader, u32 src_len, xwriter* encrypted);
-			void			encrypt_end(xwriter* encrypted);
+			void			encrypt_start(u32 plain_length, writer_t* encrypted);
+			void			encrypt_data(reader_t* reader, u32 src_len, writer_t* encrypted);
+			void			encrypt_end(writer_t* encrypted);
 			void			encrypt(u8* buffer);
 
 			void			decrypt_start(u32 encrypted_length);
-			void			decrypt_data(const u8* encrypted, u32 encrypted_length, xwriter* plain);
-			void			decrypt_end(xwriter* plain);
+			void			decrypt_data(const u8* encrypted, u32 encrypted_length, writer_t* plain);
+			void			decrypt_end(writer_t* plain);
 			void			decrypt(u8* buffer);
 
 			void			expand_enc_key(u8* rc);
@@ -188,12 +188,12 @@ namespace xcore
 			m_decryptInitialized = false;
 		}
 
-		void	xAES256::set_key(xreader* key, u32 key_len)
+		void	xAES256::set_key(reader_t* key, u32 key_len)
 		{
 			m_key.read(key, key_len);
 		}
 
-		void	xAES256::encrypt_start(u32 plain_length, xwriter* encrypted)
+		void	xAES256::encrypt_start(u32 plain_length, writer_t* encrypted)
 		{
 			m_remainingLength = plain_length;
 
@@ -219,7 +219,7 @@ namespace xcore
 			m_buffer_pos = 0;
 		}
 
-		void	xAES256::encrypt_data(xreader* src, u32 src_len, xwriter* encrypted)
+		void	xAES256::encrypt_data(reader_t* src, u32 src_len, writer_t* encrypted)
 		{
 			u32 i = 0;
 			while (i < src_len) 
@@ -237,7 +237,7 @@ namespace xcore
 			}
 		}
 
-		void	xAES256::encrypt_end(xwriter* encrypted)
+		void	xAES256::encrypt_end(writer_t* encrypted)
 		{
 			if (m_buffer_pos > 0) 
 			{
@@ -292,7 +292,7 @@ namespace xcore
 			m_decryptInitialized = false;
 		}
 
-		void	xAES256::decrypt_data(const u8* encrypted, u32 encrypted_length, xwriter* plain)
+		void	xAES256::decrypt_data(const u8* encrypted, u32 encrypted_length, writer_t* plain)
 		{
 			u32	i = 0;
 
@@ -338,7 +338,7 @@ namespace xcore
 
 		}
 
-		void	xAES256::decrypt_end(xwriter* plain)
+		void	xAES256::decrypt_end(writer_t* plain)
 		{
 			
 		}
@@ -561,22 +561,22 @@ namespace xcore
 			m_aes.clear();
 		}
 
-		virtual void		initialize(xreader* key, u32 key_len)
+		virtual void		initialize(reader_t* key, u32 key_len)
 		{
 			m_aes.set_key(key, key_len);
 		}
 
-		virtual void		encrypt_begin(u32 total_src_len, xwriter* dst)
+		virtual void		encrypt_begin(u32 total_src_len, writer_t* dst)
 		{
 			m_aes.encrypt_start(total_src_len, dst);
 		}
 
-		virtual void		encrypt_block(xreader* src, u32 src_len, xwriter* dst)
+		virtual void		encrypt_block(reader_t* src, u32 src_len, writer_t* dst)
 		{
 			m_aes.encrypt_data(src, src_len, dst);
 		}
 
-		virtual void		encrypt_final(xwriter* dst)
+		virtual void		encrypt_final(writer_t* dst)
 		{
 
 
@@ -587,12 +587,12 @@ namespace xcore
 
 		}
 
-		virtual void		decrypt_block(xreader* src, u32 src_len, xwriter* dst)
+		virtual void		decrypt_block(reader_t* src, u32 src_len, writer_t* dst)
 		{
 
 		}
 
-		virtual void		decrypt_final(xwriter* dst)
+		virtual void		decrypt_final(writer_t* dst)
 		{
 
 		}
