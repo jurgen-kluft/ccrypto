@@ -1,6 +1,6 @@
 #include "xbase/x_target.h"
-#include "xbase/x_string_ascii.h"
-#include "xhash/x_sha1.h"
+#include "xbase/x_runes.h"
+#include "xcrypto/x_cipher_engine.h"
 
 #include "xunittest/xunittest.h"
 
@@ -8,76 +8,10 @@ using namespace xcore;
 
 UNITTEST_SUITE_BEGIN(sha1_t)
 {
-	UNITTEST_FIXTURE(type)
+	UNITTEST_FIXTURE(encrypt)
 	{
 		UNITTEST_FIXTURE_SETUP() {}
 		UNITTEST_FIXTURE_TEARDOWN() {}
-	}
-
-	UNITTEST_FIXTURE(generator)
-	{
-		UNITTEST_FIXTURE_SETUP() {}
-		UNITTEST_FIXTURE_TEARDOWN() {}
-
-		UNITTEST_TEST(Empty)
-		{
-			xdigest_engine_sha1 g;
-			g.reset();
-			sha1_t h;
-			CHECK_TRUE(g.digest(h));
-
-			char sha1Str[128];
-			u32 sha1StrLen = sizeof(sha1Str) - 1;
-			u32 len = h.toString(sha1Str, sha1StrLen);
-			CHECK_TRUE(len!=0);
-			CHECK_EQUAL(40, len);
-
-			CHECK_EQUAL(0, StrCmpin("da39a3ee5e6b4b0d3255bfef95601890afd80709", sha1Str, len));
-		}
-
-		UNITTEST_TEST(Fox1)
-		{
-			xdigest_engine_sha1 g;
-			g.reset();
-
-			char const* data = "The quick brown fox jumps over the lazy dog";
-			u32 data_len = StrLen(data);
-			g.update(data, data_len);
-
-			sha1_t h;
-			CHECK_TRUE(g.digest(h));
-
-			char sha1Str[128];
-			u32 sha1StrLen = sizeof(sha1Str) - 1;
-			s32 len = h.toString(sha1Str, sha1StrLen);
-			CHECK_TRUE(len!=0);
-			CHECK_EQUAL(40, len);
-
-			CHECK_EQUAL(0, StrCmpin("2fd4e1c67a2d28fced849ee1bb76e7391b93eb12", sha1Str, len));
-		}
-
-
-		UNITTEST_TEST(Fox2)
-		{
-			xdigest_engine_sha1 g;
-			g.reset();
-
-			char const* data = "The quick brown fox jumps over the lazy cog";
-			u32 data_len = StrLen(data);
-			g.update(data, data_len);
-
-			sha1_t h;
-			CHECK_TRUE(g.digest(h));
-
-			char sha1Str[128];
-			u32 sha1StrLen = sizeof(sha1Str) - 1;
-			s32 len = h.toString(sha1Str, sha1StrLen);
-			CHECK_TRUE(len!=0);
-			CHECK_EQUAL(40, len);
-
-			CHECK_EQUAL(0, StrCmpin("de9f2c7fd25e1b3afad3e85a0bd17d9b100db4b3", sha1Str, len));
-		}
-
 	}
 }
 UNITTEST_SUITE_END

@@ -224,7 +224,9 @@ namespace xcore
 			u32 i = 0;
 			while (i < src_len) 
 			{
-				m_buffer[m_buffer_pos++] = src[i++];
+				xbyte b;
+				src->read(&b, 1);
+				m_buffer[m_buffer_pos++] = b;
 				if (m_buffer_pos == BLOCK_SIZE)
 				{
 					encrypt(m_buffer);
