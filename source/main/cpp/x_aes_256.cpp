@@ -1,9 +1,7 @@
 #include "xbase/x_target.h"
 #include "xcrypto/x_cipher_engine.h"
 
-#include <vector>
-
-namespace xcore
+namespace ncore
 {
 	namespace AES
 	{
@@ -14,9 +12,9 @@ namespace xcore
 		const int KEY_SIZE = 32;
 		const int NUM_ROUNDS = 14;
 
-		struct xaes_key
+		struct aes_key
 		{
-			xaes_key()
+			aes_key()
 			{
 				clear(0);
 			}
@@ -55,9 +53,9 @@ namespace xcore
 			u8			m_key[KEY_SIZE];
 		};
 
-		struct xAES256
+		struct AES256
 		{
-			xAES256() 
+			AES256() 
 			{
 				clear();
 			}
@@ -92,13 +90,13 @@ namespace xcore
 			void			mix_columns(u8* buffer);
 			void			mix_columns_inv(u8* buffer);
 
-			xaes_key		m_key;
-			xaes_key		m_salt;
-			xaes_key		m_rkey;
+			aes_key		m_key;
+			aes_key		m_salt;
+			aes_key		m_rkey;
 
 			u8				m_buffer[3 * BLOCK_SIZE];
 			u8				m_buffer_pos;
-			size_t			m_remainingLength;
+			uint_t			m_remainingLength;
 
 			bool			m_decryptInitialized;
 		};
@@ -178,7 +176,7 @@ namespace xcore
 			0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 		};
 
-		void	xAES256::clear()
+		void	AES256::clear()
 		{
 			m_key.clear(0);
 			m_salt.clear(0);
@@ -188,12 +186,12 @@ namespace xcore
 			m_decryptInitialized = false;
 		}
 
-		void	xAES256::set_key(reader_t* key, u32 key_len)
+		void	AES256::set_key(reader_t* key, u32 key_len)
 		{
 			m_key.read(key, key_len);
 		}
 
-		void	xAES256::encrypt_start(u32 plain_length, writer_t* encrypted)
+		void	AES256::encrypt_start(u32 plain_length, writer_t* encrypted)
 		{
 			m_remainingLength = plain_length;
 
@@ -219,12 +217,12 @@ namespace xcore
 			m_buffer_pos = 0;
 		}
 
-		void	xAES256::encrypt_data(reader_t* src, u32 src_len, writer_t* encrypted)
+		void	AES256::encrypt_data(reader_t* src, u32 src_len, writer_t* encrypted)
 		{
 			u32 i = 0;
 			while (i < src_len) 
 			{
-				xbyte b;
+				u8 b;
 				src->read(&b, 1);
 				m_buffer[m_buffer_pos++] = b;
 				if (m_buffer_pos == BLOCK_SIZE)
@@ -239,7 +237,7 @@ namespace xcore
 			}
 		}
 
-		void	xAES256::encrypt_end(writer_t* encrypted)
+		void	AES256::encrypt_end(writer_t* encrypted)
 		{
 			if (m_buffer_pos > 0) 
 			{
@@ -255,7 +253,7 @@ namespace xcore
 			}
 		}
 
-		void	xAES256::encrypt(u8* buffer)
+		void	AES256::encrypt(u8* buffer)
 		{
 			u8 i, rcon;
 
@@ -276,7 +274,7 @@ namespace xcore
 			add_round_key(buffer, i);
 		}
 
-		void	xAES256::decrypt_start(u32 encrypted_length)
+		void	AES256::decrypt_start(u32 encrypted_length)
 		{
 			u8 j;
 
@@ -294,7 +292,7 @@ namespace xcore
 			m_decryptInitialized = false;
 		}
 
-		void	xAES256::decrypt_data(const u8* encrypted, u32 encrypted_length, writer_t* plain)
+		void	AES256::decrypt_data(const u8* encrypted, u32 encrypted_length, writer_t* plain)
 		{
 			u32	i = 0;
 
@@ -340,12 +338,12 @@ namespace xcore
 
 		}
 
-		void	xAES256::decrypt_end(writer_t* plain)
+		void	AES256::decrypt_end(writer_t* plain)
 		{
 			
 		}
 
-		void	xAES256::decrypt(u8* buffer)
+		void	AES256::decrypt(u8* buffer)
 		{
 			u8 i, rcon = 1;
 
@@ -370,7 +368,7 @@ namespace xcore
 			add_round_key(buffer, i);
 		}
 
-		void xAES256::expand_enc_key(u8* rc)
+		void AES256::expand_enc_key(u8* rc)
 		{
 			u8 i;
 
@@ -399,7 +397,7 @@ namespace xcore
 			}
 		}
 
-		void xAES256::expand_dec_key(u8* rc)
+		void AES256::expand_dec_key(u8* rc)
 		{
 			u8 i;
 
@@ -429,7 +427,7 @@ namespace xcore
 			m_rkey[3] = m_rkey[3] ^ sbox[m_rkey[28]];
 		}
 
-		void xAES256::sub_bytes(u8* buffer)
+		void AES256::sub_bytes(u8* buffer)
 		{
 			u8 i = KEY_SIZE / 2;
 
@@ -437,14 +435,14 @@ namespace xcore
 				buffer[i] = sbox[buffer[i]];
 		}
 
-		void xAES256::sub_bytes_inv(u8* buffer)
+		void AES256::sub_bytes_inv(u8* buffer)
 		{
 			u8 i = KEY_SIZE / 2;
 			while (i--)
 				buffer[i] = sboxinv[buffer[i]];
 		}
 
-		void xAES256::copy_key()
+		void AES256::copy_key()
 		{
 			u32 i;
 			for (i = 0; i < m_key.size(); ++i)
@@ -453,14 +451,14 @@ namespace xcore
 				m_rkey[i + m_key.size()] = m_salt[i];
 		}
 
-		void xAES256::add_round_key(u8* buffer, u8 round)
+		void AES256::add_round_key(u8* buffer, u8 round)
 		{
 			u8 i = KEY_SIZE / 2;
 			while (i--)
 				buffer[i] ^= m_rkey[(round & 1) ? i + 16 : i];
 		}
 
-		void xAES256::shift_rows(u8* buffer)
+		void AES256::shift_rows(u8* buffer)
 		{
 			u8 i, j, k, l; /* to make it potentially parallelable :) */
 
@@ -485,7 +483,7 @@ namespace xcore
 			buffer[6] = l;
 		}
 
-		void xAES256::shift_rows_inv(u8* buffer)
+		void AES256::shift_rows_inv(u8* buffer)
 		{
 			u8 i, j, k, l; /* same as above :) */
 
@@ -510,7 +508,7 @@ namespace xcore
 			buffer[14] = l;
 		}
 
-		void xAES256::mix_columns(u8* buffer)
+		void AES256::mix_columns(u8* buffer)
 		{
 			u8 i, a, b, c, d, e;
 
@@ -530,7 +528,7 @@ namespace xcore
 			}
 		}
 
-		void xAES256::mix_columns_inv(u8* buffer)
+		void AES256::mix_columns_inv(u8* buffer)
 		{
 			u8 i, a, b, c, d, e, x, y, z;
 
@@ -553,10 +551,10 @@ namespace xcore
 		}
 	}
 
-	class xaes256_cipher : public xcipher_engine
+	class xaes256_cipher : public cipher
 	{
 	public:
-		AES::xAES256		m_aes;
+		AES::AES256		m_aes;
 
 		virtual void		reset()
 		{

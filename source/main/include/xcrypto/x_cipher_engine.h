@@ -1,21 +1,13 @@
-/**
- * @file x_cipher_engine.h
- *
- * Core Cipher Engine
- */
-
-// x_cipher_engine.h - Core Cipher Engine - 
-#ifndef __XCRYPTO_CIPHER_ENGINE_H__
-#define __XCRYPTO_CIPHER_ENGINE_H__
+#ifndef __CCRYPTO_CIPHER_ENGINE_H__
+#define __CCRYPTO_CIPHER_ENGINE_H__
 #include "xbase/x_target.h"
 #ifdef USE_PRAGMA_ONCE
 #pragma once
 #endif
 
-
-namespace xcore
+namespace ncore
 {
-	class xcipher_engine
+	class cipher
 	{
 	public:
 		virtual void		reset() = 0;
@@ -32,4 +24,4 @@ namespace xcore
 	};
 }
 
-#endif	///< __XCRYPTO_CIPHER_ENGINE_H__
+#endif	///< __CCRYPTO_CIPHER_ENGINE_H__
