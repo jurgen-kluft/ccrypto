@@ -1,8 +1,8 @@
-#include "cbase/x_target.h"
-#include "cbase/x_runes.h"
-#include "xcrypto/x_cipher_engine.h"
+#include "cbase/c_target.h"
+#include "cbase/c_runes.h"
+#include "ccrypto/c_cipher_engine.h"
 
-#include "xunittest/xunittest.h"
+#include "cunittest/xunittest.h"
 
 using namespace ncore;
 

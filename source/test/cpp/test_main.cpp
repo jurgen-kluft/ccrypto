@@ -1,10 +1,10 @@
-#include "cbase/x_base.h"
-#include "cbase/x_allocator.h"
-#include "cbase/x_console.h"
-#include "cbase/x_context.h"
+#include "cbase/c_base.h"
+#include "cbase/c_allocator.h"
+#include "cbase/c_console.h"
+#include "cbase/c_context.h"
 
-#include "xunittest/xunittest.h"
-#include "xunittest/private/ut_ReportAssert.h"
+#include "cunittest/xunittest.h"
+#include "cunittest/private/ut_ReportAssert.h"
 
 UNITTEST_SUITE_LIST(xHashUnitTest);
 UNITTEST_SUITE_DECLARE(xHashUnitTest, sha1_t);
@@ -45,8 +45,6 @@ namespace ncore
 		alloc_t*		mAllocator;
 	public:
 							TestAllocator(alloc_t* allocator) : mAllocator(allocator) { }
-
-		virtual const char*	name() const										{ return "xbase unittest test heap allocator"; }
 
 		virtual void*		v_allocate(u32 size, u32 alignment)
 		{
