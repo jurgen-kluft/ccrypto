@@ -1,34 +1,34 @@
-package xcrypto
+package ccrypto
 
 import (
-	"github.com/jurgen-kluft/xbase/package"
-	"github.com/jurgen-kluft/xcode/denv"
-	"github.com/jurgen-kluft/xentry/package"
-	"github.com/jurgen-kluft/xunittest/package"
+	cbase "github.com/jurgen-kluft/cbase/package"
+	"github.com/jurgen-kluft/ccode/denv"
+	centry "github.com/jurgen-kluft/centry/package"
+	cunittest "github.com/jurgen-kluft/cunittest/package"
 )
 
-// GetPackage returns the package object of 'xcrypto'
+// GetPackage returns the package object of 'ccrypto'
 func GetPackage() *denv.Package {
 	// Dependencies
-	xunittestpkg := xunittest.GetPackage()
-	xentrypkg := xentry.GetPackage()
-	xbasepkg := xbase.GetPackage()
+	xunittestpkg := cunittest.GetPackage()
+	xentrypkg := centry.GetPackage()
+	cbasepkg := cbase.GetPackage()
 
-	// The main (xcrypto) package
-	mainpkg := denv.NewPackage("xcrypto")
+	// The main (ccrypto) package
+	mainpkg := denv.NewPackage("ccrypto")
 	mainpkg.AddPackage(xunittestpkg)
 	mainpkg.AddPackage(xentrypkg)
-	mainpkg.AddPackage(xbasepkg)
+	mainpkg.AddPackage(cbasepkg)
 
-	// 'xcrypto' library
-	mainlib := denv.SetupDefaultCppLibProject("xcrypto", "github.com\\jurgen-kluft\\xcrypto")
-	mainlib.Dependencies = append(mainlib.Dependencies, xbasepkg.GetMainLib())
+	// 'ccrypto' library
+	mainlib := denv.SetupDefaultCppLibProject("ccrypto", "github.com\\jurgen-kluft\\ccrypto")
+	mainlib.Dependencies = append(mainlib.Dependencies, cbasepkg.GetMainLib())
 
-	// 'xcrypto' unittest project
-	maintest := denv.SetupDefaultCppTestProject("xcrypto_test", "github.com\\jurgen-kluft\\xcrypto")
+	// 'ccrypto' unittest project
+	maintest := denv.SetupDefaultCppTestProject("ccrypto_test", "github.com\\jurgen-kluft\\ccrypto")
 	maintest.Dependencies = append(maintest.Dependencies, xunittestpkg.GetMainLib())
 	maintest.Dependencies = append(maintest.Dependencies, xentrypkg.GetMainLib())
-	maintest.Dependencies = append(maintest.Dependencies, xbasepkg.GetMainLib())
+	maintest.Dependencies = append(maintest.Dependencies, cbasepkg.GetMainLib())
 	maintest.Dependencies = append(maintest.Dependencies, mainlib)
 
 	mainpkg.AddMainLib(mainlib)
