@@ -10,25 +10,25 @@ import (
 // GetPackage returns the package object of 'ccrypto'
 func GetPackage() *denv.Package {
 	// Dependencies
-	xunittestpkg := cunittest.GetPackage()
-	xentrypkg := centry.GetPackage()
-	cbasepkg := cbase.GetPackage()
+	unittestpkg := cunittest.GetPackage()
+	entrypkg := centry.GetPackage()
+	basepkg := cbase.GetPackage()
 
 	// The main (ccrypto) package
 	mainpkg := denv.NewPackage("ccrypto")
-	mainpkg.AddPackage(xunittestpkg)
-	mainpkg.AddPackage(xentrypkg)
-	mainpkg.AddPackage(cbasepkg)
+	mainpkg.AddPackage(unittestpkg)
+	mainpkg.AddPackage(entrypkg)
+	mainpkg.AddPackage(basepkg)
 
 	// 'ccrypto' library
 	mainlib := denv.SetupDefaultCppLibProject("ccrypto", "github.com\\jurgen-kluft\\ccrypto")
-	mainlib.Dependencies = append(mainlib.Dependencies, cbasepkg.GetMainLib())
+	mainlib.Dependencies = append(mainlib.Dependencies, basepkg.GetMainLib())
 
 	// 'ccrypto' unittest project
 	maintest := denv.SetupDefaultCppTestProject("ccrypto_test", "github.com\\jurgen-kluft\\ccrypto")
-	maintest.Dependencies = append(maintest.Dependencies, xunittestpkg.GetMainLib())
-	maintest.Dependencies = append(maintest.Dependencies, xentrypkg.GetMainLib())
-	maintest.Dependencies = append(maintest.Dependencies, cbasepkg.GetMainLib())
+	maintest.Dependencies = append(maintest.Dependencies, unittestpkg.GetMainLib())
+	maintest.Dependencies = append(maintest.Dependencies, entrypkg.GetMainLib())
+	maintest.Dependencies = append(maintest.Dependencies, basepkg.GetMainLib())
 	maintest.Dependencies = append(maintest.Dependencies, mainlib)
 
 	mainpkg.AddMainLib(mainlib)
