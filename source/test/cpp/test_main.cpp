@@ -3,7 +3,7 @@
 #include "cbase/c_console.h"
 #include "cbase/c_context.h"
 
-#include "cunittest/xunittest.h"
+#include "cunittest/cunittest.h"
 #include "cunittest/private/ut_ReportAssert.h"
 
 UNITTEST_SUITE_LIST(xHashUnitTest);
@@ -91,7 +91,7 @@ bool gRunUnitTest(UnitTest::TestReporter& reporter)
 	int r = UNITTEST_SUITE_RUN(reporter, xHashUnitTest);
 	if (UnitTest::GetNumAllocations()!=0)
 	{
-		reporter.reportFailure(__FILE__, __LINE__, "xunittest", "memory leaks detected!");
+		reporter.reportFailure(__FILE__, __LINE__, "cunittest", "memory leaks detected!");
 		r = -1;
 	}
 
