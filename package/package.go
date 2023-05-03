@@ -3,7 +3,6 @@ package ccrypto
 import (
 	cbase "github.com/jurgen-kluft/cbase/package"
 	"github.com/jurgen-kluft/ccode/denv"
-	centry "github.com/jurgen-kluft/centry/package"
 	cunittest "github.com/jurgen-kluft/cunittest/package"
 )
 
@@ -11,13 +10,11 @@ import (
 func GetPackage() *denv.Package {
 	// Dependencies
 	unittestpkg := cunittest.GetPackage()
-	entrypkg := centry.GetPackage()
 	basepkg := cbase.GetPackage()
 
 	// The main (ccrypto) package
 	mainpkg := denv.NewPackage("ccrypto")
 	mainpkg.AddPackage(unittestpkg)
-	mainpkg.AddPackage(entrypkg)
 	mainpkg.AddPackage(basepkg)
 
 	// 'ccrypto' library
@@ -27,7 +24,6 @@ func GetPackage() *denv.Package {
 	// 'ccrypto' unittest project
 	maintest := denv.SetupDefaultCppTestProject("ccrypto_test", "github.com\\jurgen-kluft\\ccrypto")
 	maintest.Dependencies = append(maintest.Dependencies, unittestpkg.GetMainLib())
-	maintest.Dependencies = append(maintest.Dependencies, entrypkg.GetMainLib())
 	maintest.Dependencies = append(maintest.Dependencies, basepkg.GetMainLib())
 	maintest.Dependencies = append(maintest.Dependencies, mainlib)
 
