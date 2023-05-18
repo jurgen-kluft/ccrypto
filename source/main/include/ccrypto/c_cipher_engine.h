@@ -7,7 +7,7 @@
 
 namespace ncore
 {
-	class cipher
+	class cipher_t
 	{
 	public:
 		virtual void		reset() = 0;
@@ -24,4 +24,4 @@ namespace ncore
 	};
 }
 
-#endif	///< __CCRYPTO_CIPHER_ENGINE_H__
+#endif	// __CCRYPTO_CIPHER_ENGINE_H__
