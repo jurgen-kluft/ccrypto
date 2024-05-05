@@ -7,7 +7,7 @@ namespace ncore
     {
         const int BLOCK_SIZE = 16;
 #define FE(x) (((x) << 1) ^ ((((x) >> 7) & 1) * 0x1b))
-#define FD(x) (((x) >> 1) ^ (((x)&1) ? 0x8d : 0))
+#define FD(x) (((x) >> 1) ^ (((x) & 1) ? 0x8d : 0))
 
         const int KEY_SIZE   = 32;
         const int NUM_ROUNDS = 14;
@@ -16,18 +16,15 @@ namespace ncore
         {
             u64 s0, s1;
 
-            inline rnd_t(u64 seed = 0XDEADBEEFDEADBEEFULL)
-            {
-				reset(seed);
-            }
+            inline rnd_t(u64 seed = 0XDEADBEEFDEADBEEFULL) { reset(seed); }
 
-			inline void reset(u64 seed)
-			{
-				s0 = seed;
-				s1 = 0;
-				next();
-				next();
-			}
+            inline void reset(u64 seed)
+            {
+                s0 = seed;
+                s1 = 0;
+                next();
+                next();
+            }
 
             inline u64 next(void)
             {
@@ -84,13 +81,13 @@ namespace ncore
 
             void set_key(reader_t *key, u32 key_len);
 
-            void encrypt_start(u32 plain_length, writer_t *encrypted);
-            void encrypt_data(reader_t *reader, u32 src_len, writer_t *encrypted);
+            void encrypt_start(s64 plain_length, writer_t *encrypted);
+            void encrypt_data(reader_t *reader, s64 src_len, writer_t *encrypted);
             void encrypt_end(writer_t *encrypted);
             void encrypt(u8 *buffer);
 
-            void decrypt_start(u32 encrypted_length);
-            void decrypt_data(const u8 *encrypted, u32 encrypted_length, writer_t *plain);
+            void decrypt_start(s64 encrypted_length);
+            void decrypt_data(reader_t *encrypted, s64 encrypted_length, writer_t *plain);
             void decrypt_end(writer_t *plain);
             void decrypt(u8 *buffer);
 
@@ -144,7 +141,7 @@ namespace ncore
             m_key.clear(0);
             m_salt.clear(0);
             m_rkey.clear(0);
-			m_rnd.reset((u64)m_buffer);
+            m_rnd.reset((u64)m_buffer);
             m_buffer_pos         = 0;
             m_remainingLength    = 0;
             m_decryptInitialized = false;
@@ -152,7 +149,7 @@ namespace ncore
 
         void AES256::set_key(reader_t *key, u32 key_len) { m_key.read(key, key_len); }
 
-        void AES256::encrypt_start(u32 plain_length, writer_t *encrypted)
+        void AES256::encrypt_start(s64 plain_length, writer_t *encrypted)
         {
             m_remainingLength = plain_length;
 
@@ -178,14 +175,19 @@ namespace ncore
             m_buffer_pos = 0;
         }
 
-        void AES256::encrypt_data(reader_t *src, u32 src_len, writer_t *encrypted)
+        void AES256::encrypt_data(reader_t *src, s64 src_len, writer_t *encrypted)
         {
-            u32 i = 0;
-            while (i < src_len)
+            while (src_len > 0)
             {
-                u8 b;
-                src->read(&b, 1);
-                m_buffer[m_buffer_pos++] = b;
+                // read directly into the buffer
+                s64 n = (s64)BLOCK_SIZE - m_buffer_pos;
+                if (n > src_len)
+                    n = src_len;
+                n = src->read(m_buffer + m_buffer_pos, n);
+
+                m_buffer_pos += n;
+                src_len -= n;
+
                 if (m_buffer_pos == BLOCK_SIZE)
                 {
                     encrypt(m_buffer);
@@ -235,7 +237,7 @@ namespace ncore
             add_round_key(buffer, i);
         }
 
-        void AES256::decrypt_start(u32 encrypted_length)
+        void AES256::decrypt_start(s64 encrypted_length)
         {
             u8 j;
 
@@ -253,24 +255,32 @@ namespace ncore
             m_decryptInitialized = false;
         }
 
-        void AES256::decrypt_data(const u8 *encrypted, u32 encrypted_length, writer_t *plain)
+        void AES256::decrypt_data(reader_t *encrypted, s64 encrypted_length, writer_t *plain)
         {
-            u32 i = 0;
-
-            while (i < encrypted_length)
+            if (!m_decryptInitialized)
             {
-                m_buffer[m_buffer_pos++] = encrypted[i++];
-                if (!m_decryptInitialized && m_buffer_pos == m_salt.size() + 1)
+                // Keep reading until we have the salt and padding
+                // We can only read for encrypted_length bytes
+
+                s64 n = (s64)(m_salt.size() + 1) - m_buffer_pos;
+                if (n > encrypted_length)
+                    n = encrypted_length;
+                
+                n = encrypted->read(m_buffer + m_buffer_pos, n);
+
+                encrypted_length -= n;
+                m_buffer_pos += n;
+
+                if (m_buffer_pos == m_salt.size() + 1)
                 {
                     u8  j;
-                    u32 padding;
 
                     // Get salt
                     for (j = 0; j < m_salt.size(); ++j)
                         m_salt[j] = m_buffer[j];
 
                     // Get padding
-                    padding = (m_buffer[j] & 0xFF);
+                    u32 padding = (m_buffer[j] & 0xFF);
                     m_remainingLength -= padding + 1;
 
                     // Start decrypting
@@ -278,7 +288,27 @@ namespace ncore
 
                     m_decryptInitialized = true;
                 }
-                else if (m_decryptInitialized && m_buffer_pos == BLOCK_SIZE)
+                else
+                {
+                    // We need to read more
+                    return;
+                }
+            }
+
+            // Decrypt the rest of the data
+            while (encrypted_length > 0)
+            {
+                // Keep reading until we have a full block
+                s64 n = (s64)BLOCK_SIZE - m_buffer_pos;
+                if (n > encrypted_length)
+                    n = encrypted_length;
+                
+                n = encrypted->read(m_buffer + m_buffer_pos, n);
+
+                encrypted_length -= n;
+                m_buffer_pos += n;
+
+                if (m_buffer_pos == BLOCK_SIZE)
                 {
                     decrypt(m_buffer);
 
@@ -296,6 +326,54 @@ namespace ncore
                     m_buffer_pos = 0;
                 }
             }
+
+
+            // while (i < encrypted_length)
+            // {
+            //     //m_buffer[m_buffer_pos++] = encrypted[i++];
+
+            //     encrypted->read(m_buffer + m_buffer_pos, 1);
+                
+            //     ++i;
+            //     ++m_buffer_pos;
+
+            //     if (!m_decryptInitialized && m_buffer_pos == m_salt.size() + 1)
+            //     {
+            //         u8  j;
+            //         u32 padding;
+
+            //         // Get salt
+            //         for (j = 0; j < m_salt.size(); ++j)
+            //             m_salt[j] = m_buffer[j];
+
+            //         // Get padding
+            //         padding = (m_buffer[j] & 0xFF);
+            //         m_remainingLength -= padding + 1;
+
+            //         // Start decrypting
+            //         m_buffer_pos = 0;
+
+            //         m_decryptInitialized = true;
+            //     }
+            //     else if (m_decryptInitialized && m_buffer_pos == BLOCK_SIZE)
+            //     {
+            //         decrypt(m_buffer);
+
+            //         plain->write(m_buffer, BLOCK_SIZE);
+
+            //         if (m_remainingLength >= BLOCK_SIZE)
+            //         {
+            //             m_remainingLength -= BLOCK_SIZE;
+            //         }
+            //         else
+            //         {
+            //             m_remainingLength = 0;
+            //         }
+
+            //         m_buffer_pos = 0;
+            //     }
+            // }
+
         }
 
         void AES256::decrypt_end(writer_t *plain) {}
@@ -516,23 +594,15 @@ namespace ncore
     class aes256_cipher_t : public cipher_t
     {
     public:
-        AES::AES256 m_aes;
-
+        AES::AES256  m_aes;
         virtual void reset() { m_aes.clear(); }
-
         virtual void initialize(reader_t *key, u32 key_len) { m_aes.set_key(key, key_len); }
-
         virtual void encrypt_begin(u32 total_src_len, writer_t *dst) { m_aes.encrypt_start(total_src_len, dst); }
-
         virtual void encrypt_block(reader_t *src, u32 src_len, writer_t *dst) { m_aes.encrypt_data(src, src_len, dst); }
-
-        virtual void encrypt_final(writer_t *dst) {}
-
-        virtual void decrypt_begin(u32 total_src_len) {}
-
-        virtual void decrypt_block(reader_t *src, u32 src_len, writer_t *dst) {}
-
-        virtual void decrypt_final(writer_t *dst) {}
+        virtual void encrypt_final(writer_t *dst) { m_aes.encrypt_end(dst); }
+        virtual void decrypt_begin(u32 total_src_len) { m_aes.decrypt_start(total_src_len); }
+        virtual void decrypt_block(reader_t *src, u32 src_len, writer_t *dst) { m_aes.decrypt_data(src, src_len, dst); }
+        virtual void decrypt_final(writer_t *dst) { m_aes.decrypt_end(dst); }
     };
 
 }  // namespace ncore
