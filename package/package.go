@@ -3,36 +3,42 @@ package ccrypto
 import (
 	cbase "github.com/jurgen-kluft/cbase/package"
 	denv "github.com/jurgen-kluft/ccode/denv"
-	ccore "github.com/jurgen-kluft/ccore/package"
 	cunittest "github.com/jurgen-kluft/cunittest/package"
 )
 
-// GetPackage returns the package object of 'ccrypto'
+const (
+	repo_path = "github.com\\jurgen-kluft"
+	repo_name = "ccrypto"
+)
+
 func GetPackage() *denv.Package {
-	// Dependencies
-	unittestpkg := cunittest.GetPackage()
+	name := repo_name
+
+	// dependencies
+	cunittestpkg := cunittest.GetPackage()
 	cbasepkg := cbase.GetPackage()
-	ccorepkg := ccore.GetPackage()
 
-	// The main (ccrypto) package
-	mainpkg := denv.NewPackage("github.com\\jurgen-kluft", "ccrypto")
-	mainpkg.AddPackage(unittestpkg)
+	// main package
+	mainpkg := denv.NewPackage(repo_path, repo_name)
+	mainpkg.AddPackage(cunittestpkg)
 	mainpkg.AddPackage(cbasepkg)
-	mainpkg.AddPackage(ccorepkg)
 
-	// 'ccrypto' library
-	mainlib := denv.SetupCppLibProject(mainpkg, "ccrypto")
+	// main library
+	mainlib := denv.SetupCppLibProject(mainpkg, name)
 	mainlib.AddDependencies(cbasepkg.GetMainLib()...)
-	mainlib.AddDependencies(ccorepkg.GetMainLib()...)
 
-	// 'ccrypto' unittest project
-	maintest := denv.SetupCppTestProject(mainpkg, "ccrypto_test")
-	maintest.AddDependencies(unittestpkg.GetMainLib()...)
-	maintest.AddDependencies(cbasepkg.GetMainLib()...)
-	maintest.AddDependencies(ccorepkg.GetMainLib()...)
-	maintest.AddDependency(mainlib)
+	// test library
+	testlib := denv.SetupCppTestLibProject(mainpkg, name)
+	testlib.AddDependencies(cbasepkg.GetTestLib()...)
+	testlib.AddDependencies(cunittestpkg.GetTestLib()...)
+
+	// unittest project
+	maintest := denv.SetupCppTestProject(mainpkg, name)
+	maintest.AddDependencies(cunittestpkg.GetMainLib()...)
+	maintest.AddDependency(testlib)
 
 	mainpkg.AddMainLib(mainlib)
+	mainpkg.AddTestLib(testlib)
 	mainpkg.AddUnittest(maintest)
 	return mainpkg
 }
