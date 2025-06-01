@@ -15,22 +15,22 @@ func GetPackage() *denv.Package {
 	ccorepkg := ccore.GetPackage()
 
 	// The main (ccrypto) package
-	mainpkg := denv.NewPackage("ccrypto")
+	mainpkg := denv.NewPackage("github.com\\jurgen-kluft", "ccrypto")
 	mainpkg.AddPackage(unittestpkg)
 	mainpkg.AddPackage(cbasepkg)
 	mainpkg.AddPackage(ccorepkg)
 
 	// 'ccrypto' library
-	mainlib := denv.SetupCppLibProject("ccrypto", "github.com\\jurgen-kluft\\ccrypto")
+	mainlib := denv.SetupCppLibProject(mainpkg, "ccrypto")
 	mainlib.AddDependencies(cbasepkg.GetMainLib()...)
 	mainlib.AddDependencies(ccorepkg.GetMainLib()...)
 
 	// 'ccrypto' unittest project
-	maintest := denv.SetupDefaultCppTestProject("ccrypto_test", "github.com\\jurgen-kluft\\ccrypto")
+	maintest := denv.SetupCppTestProject(mainpkg, "ccrypto_test")
 	maintest.AddDependencies(unittestpkg.GetMainLib()...)
 	maintest.AddDependencies(cbasepkg.GetMainLib()...)
 	maintest.AddDependencies(ccorepkg.GetMainLib()...)
-	maintest.Dependencies = append(maintest.Dependencies, mainlib)
+	maintest.AddDependency(mainlib)
 
 	mainpkg.AddMainLib(mainlib)
 	mainpkg.AddUnittest(maintest)
