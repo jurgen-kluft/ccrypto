@@ -1,5 +1,7 @@
 #include "ccore/c_target.h"
-#include "ccrypto/c_cipher_engine.h"
+
+#include "ccrypto/c_encryption.h"
+#include "ccrypto/c_decryption.h"
 
 namespace ncore
 {
@@ -265,7 +267,7 @@ namespace ncore
                 s64 n = (s64)(m_salt.size() + 1) - m_buffer_pos;
                 if (n > encrypted_length)
                     n = encrypted_length;
-                
+
                 n = encrypted->read(m_buffer + m_buffer_pos, n);
 
                 encrypted_length -= n;
@@ -273,7 +275,7 @@ namespace ncore
 
                 if (m_buffer_pos == m_salt.size() + 1)
                 {
-                    u8  j;
+                    u8 j;
 
                     // Get salt
                     for (j = 0; j < m_salt.size(); ++j)
@@ -302,7 +304,7 @@ namespace ncore
                 s64 n = (s64)BLOCK_SIZE - m_buffer_pos;
                 if (n > encrypted_length)
                     n = encrypted_length;
-                
+
                 n = encrypted->read(m_buffer + m_buffer_pos, n);
 
                 encrypted_length -= n;
@@ -327,13 +329,12 @@ namespace ncore
                 }
             }
 
-
             // while (i < encrypted_length)
             // {
             //     //m_buffer[m_buffer_pos++] = encrypted[i++];
 
             //     encrypted->read(m_buffer + m_buffer_pos, 1);
-                
+
             //     ++i;
             //     ++m_buffer_pos;
 
@@ -373,7 +374,6 @@ namespace ncore
             //         m_buffer_pos = 0;
             //     }
             // }
-
         }
 
         void AES256::decrypt_end(writer_t *plain) {}
@@ -591,18 +591,19 @@ namespace ncore
         }
     }  // namespace AES
 
-    class aes256_cipher_t : public cipher_t
+    class aes256_t
     {
     public:
-        AES::AES256  m_aes;
-        virtual void reset() { m_aes.clear(); }
-        virtual void initialize(reader_t *key, u32 key_len) { m_aes.set_key(key, key_len); }
-        virtual void encrypt_begin(u32 total_src_len, writer_t *dst) { m_aes.encrypt_start(total_src_len, dst); }
-        virtual void encrypt_block(reader_t *src, u32 src_len, writer_t *dst) { m_aes.encrypt_data(src, src_len, dst); }
-        virtual void encrypt_final(writer_t *dst) { m_aes.encrypt_end(dst); }
-        virtual void decrypt_begin(u32 total_src_len) { m_aes.decrypt_start(total_src_len); }
-        virtual void decrypt_block(reader_t *src, u32 src_len, writer_t *dst) { m_aes.decrypt_data(src, src_len, dst); }
-        virtual void decrypt_final(writer_t *dst) { m_aes.decrypt_end(dst); }
+        AES::AES256 m_aes;
+
+        void        reset() { m_aes.clear(); }
+        void        initialize(reader_t *key, u32 key_len) { m_aes.set_key(key, key_len); }
+        void        encrypt_begin(u32 total_src_len, writer_t *dst) { m_aes.encrypt_start(total_src_len, dst); }
+        void        encrypt_block(reader_t *src, u32 src_len, writer_t *dst) { m_aes.encrypt_data(src, src_len, dst); }
+        void        encrypt_final(writer_t *dst) { m_aes.encrypt_end(dst); }
+        void        decrypt_begin(u32 total_src_len) { m_aes.decrypt_start(total_src_len); }
+        void        decrypt_block(reader_t *src, u32 src_len, writer_t *dst) { m_aes.decrypt_data(src, src_len, dst); }
+        void        decrypt_final(writer_t *dst) { m_aes.decrypt_end(dst); }
     };
 
 }  // namespace ncore

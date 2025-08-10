@@ -5,12 +5,16 @@
 #pragma once
 #endif
 
+#include "ccore/c_allocator.h"
+#include "ccore/c_stream.h"
+
 namespace ncore
 {
-    class alloc_t;
-    class cipher_t;
+    class encryption_t;
+    encryption_t* g_create_aes256_encryption(alloc_t* allocator, reader_t* key, u32 key_len);
 
-    cipher_t* gCreateAESCipher(alloc_t* allocator, const char * key, u32 key_size);
+    class decryption_t;
+    decryption_t* g_create_aes256_decryption(alloc_t* allocator, reader_t* key, u32 key_len);
 }
 
 #endif	// __CCRYPTO_CIPHER_AES_H__
